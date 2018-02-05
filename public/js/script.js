@@ -1,49 +1,35 @@
 $(function() {
-	// selectors
 	const menuButton = $('#menuButton'),
 		navList = $('#navList'),
 		body = $('body');
 
-	// layout control variables
-	const browser = navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ? true : false; //check if firefox
+	const browserType = navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ? true : false;
 	let documentWidth = document.documentElement.clientWidth,
 		documentHeight = document.documentElement.clientHeight,
 		windowWidth = $(window).width(),
-		executeAnimation = false, // for calling works and contact animations
-		mouseClick = 2, // for button animation control
+		executeAnimation = false,
+		mouseClick = 2,
 		storedNumber = 0,
-		resizeId; // for timeout 
+		resizeId;
 
-	// canvas variables
 	const myCanvas = document.getElementById("canvasAnimation"),
 		parentCanvas = $(myCanvas).parent(),
 		ctx = myCanvas.getContext('2d'),
 		numParticles = window.innerWidth < 700 ? 100 : 200;
 	let particles = [];
 
-	// each section default margin-left
 	const marginArr = [0, (documentWidth * -1), ((documentWidth * -1) * 2)]; 
 
-	// for welcome text animation
-	const welcomeText = "Hello world! My name is Marcin, I'm an oridinary guy that want to become a webdeveloper due to quite complex reasons. Feel free to check my works and do not hesitate to contact me if you find them somehow interesting.";
+	const welcomeText = "Hello world! Welcome to my first portfolio page. I'm Marcin and my actual goal is to become a real webdeveloper. Feel free to check my works and do not hesitate to contact me if you find them somehow interesting.";
 
-	//menu button animation
 	(function transtionMenuButton() {
 		menuButton.mouseenter(() => {
-			menuButton.children().animate({
-				width: "50px"
-			}, 100);
+			menuButton.children().removeClass('unhovered');
 		});
 
 		menuButton.mouseleave(() => {
-			const pixelValue = ["50px", "30px", "45px", "20px"];
-
 			if (mouseClick % 2 === 0) {
-				for (let i = 0; i < 4; i++) {
-					$(`#menuButton span`).eq(i).animate({
-						width: pixelValue[i]
-					}, 100)
-				}
+				menuButton.children().addClass('unhovered');
 			}
 		});
 	})();
@@ -51,12 +37,7 @@ $(function() {
 	(function clickMenuButton() {
 		menuButton.click(() => {
 			mouseClick++;
-			menuButton.children().css({
-					width: "50px"
-				});
-			for (let i = 0; i < 4; i++) {
-				$(`#menuButton span:eq(${i})`).toggleClass(`rotated${i}`);
-			}
+			menuButton.children().toggleClass('open');
 			navList.fadeToggle(100, 'linear');
 			
 		});
@@ -64,6 +45,7 @@ $(function() {
 
 	function typeWriterAnimation(text, i) {
 		const paragraph = $('#welcomeText');
+
 		if (i <= text.length) {
 			paragraph.html(text.substring(0, i + 1) + '<span></span>');
 		}
@@ -76,28 +58,27 @@ $(function() {
 		
 	} 
 
-	// works buttons controller
 	(function worksButtonsController() {
-		const buttons = [$('#workInfoButton1'), $('#workInfoButton2'), $('#workInfoButton3'), $('#workInfoButton4'), $('#workInfoButton5'), $('#workInfoButton6')],
-			descriptions = [$('#workDesc1'), $('#workDesc2'), $('#workDesc3'), $('#workDesc4'), $('#workDesc5'), $('#workDesc6')];
+		const buttons = $('.WorkInfoIcon');
+		const descriptions = $('.WorkDesc');
 
-		for (let i = 0; i < buttons.length; i++) {
-			buttons[i].click(function(event) {
-				descriptions[i].toggleClass('left');
+		buttons.each(function(i) {
+			buttons.eq(i).click(function(event) {
+				descriptions.eq(i).toggleClass('left');
 				event.stopPropagation();
 			})
-		}
+		})
+
 		$(window).click(function() {
 			for (let i = 0; i < buttons.length; i++) {
-				if (descriptions[i].hasClass('left')) {
-					descriptions[i].removeClass('left');
+				if (descriptions.eq(i).hasClass('left')) {
+					descriptions.eq(i).removeClass('left');
 				}
 			}
 		})
 	})();
 
-	// menu links anchors
-	(function menuAnchors() {// for mobile - vertical page view
+	(function menuAnchors() {
 			navList.on('click', 'a', function(event) {
 				event.preventDefault();
 
@@ -128,18 +109,20 @@ $(function() {
 	function worksAnimationController() {
 		setTimeout(function() {
 			$('.Work').each(function(index) {
-				$(this).delay(index * 200).fadeIn(500);
+				$(this).addClass('show');
 			})
 		}, 100)
 	};
 
-	// horizontal scrolling controller
-	function scrollPage(browser) {
+
+	function scrollPage(browserType) {
+
+		const animationSpeed = 250;
 
 		function setLeftMargin() {
 			body.animate({
 				marginLeft: marginArr[storedNumber]
-			}, 250);
+			}, animationSpeed);
 		}
 
 		body.on('wheel', function (event) {
@@ -150,7 +133,7 @@ $(function() {
 				executeAnimation = !executeAnimation;
 			}
 
-			if (browser) { // check if firefox -> different delta
+			if (browserType) {
 				if (event.originalEvent.deltaY < 0) {
 					if (storedNumber <= 2 && storedNumber !== 0) {
 						storedNumber--;
@@ -163,7 +146,7 @@ $(function() {
 					}
 				}
 			} else {
-				if (event.originalEvent.wheelDelta < 0) { // remaining browsers compatibility
+				if (event.originalEvent.wheelDelta < 0) {
 					if (storedNumber < 2) {
 						storedNumber++;
 						setLeftMargin();
@@ -178,7 +161,6 @@ $(function() {
 		});
 	}
  	
-	// star object with blinking animation
 	class Star {
 		constructor() {
 			this.opacity = Math.random().toFixed(2);
@@ -196,22 +178,19 @@ $(function() {
 			}
 
 		}
-		draw(ctx) { // draw circles
+		draw(ctx) { 
 
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, this.size, 2 * Math.PI, false);
 			ctx.fillStyle = this.color;
-			ctx.shadowBlur = 8;
-			ctx.shadowColor = "white";
 			ctx.fill();
 
 		}
-		redraw() { // redraw with different opacity for blinking effect
+		redraw() {
 			this.opacity =+ Math.random().toFixed(2);
 			this.color = `rgba(255, 255, 200, ${this.opacity}`;
 
 			if (this.falling < 0.02) {
-				this.color = "#faff70";
 				this.x = this.x + 17;
 				this.y = this.y + 17;
 				if (this.x > myCanvas.width && this.y > myCanvas.height) {
@@ -233,44 +212,42 @@ $(function() {
 		requestAnimationFrame(loop);
 	}
 
-	// layout size control
+
 	function controlSectionSize(width, height, callback, callParam) {
 
-		// $('.NavContainer').css({ // always resize navigation to fit viewport
-		// 	width: width,
-		// 	height: height + 300
-		// });	
+		const phoneWidth = 400;
+		const mobileWidth = 700;
 
-		$(myCanvas).attr('width', width); // dynamic resizing for canvas
+		$(myCanvas).attr('width', width);
 		$(myCanvas).attr('height', height);
 
-		if (width > 400) { // if not mobile - dynamically resize sections to fit viewports (RWD)
+		if (width > mobileWidth) {
 			$('section').css({
 				width: width,
 				height: height
 			});
 		}
 
-		if (width > 700) { // callback for horizontal/vertical scrolling control
+		if (width > mobileWidth) {
 			if (typeof callback == 'function') {
 				callback(callParam);
 			}
 		}
 	};
 
-	//function calls
-
 	$(window).resize(function() {
-		if ($(window).width() != windowWidth) {
-			windowWidth = $(window).width();
-			body.hide();
-			clearTimeout(resizeId);
-			resizeId = setTimeout(location.reload(), 1000);
+		const reload = function() {
+			this.location.href = this.location.href;
 		}
 
+		if ($(window).width() != windowWidth) {
+			windowWidth = $(window).width();
+			clearTimeout(resizeId);
+			resizeId = setTimeout(reload(), 100);
+		}
 	});
 
-	controlSectionSize(documentWidth, documentHeight, scrollPage, browser);
+	controlSectionSize(documentWidth, documentHeight, scrollPage, browserType);
 
 	for (let i = 0; i < numParticles; i++) {
 		particles.push(new Star());
