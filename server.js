@@ -2,14 +2,15 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var nodemailer = require('nodemailer');
+var dotenv = require('dotenv');
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+dotenv.config();
 
 var transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
-			user: 'nodemailerportfolio@gmail.com',
-			pass: 'XXXXXXXX'
+			user: process.env.NODEMAILER_USER,
+			pass: process.env.NODEMAILER_PASS
 		}
 });
 
